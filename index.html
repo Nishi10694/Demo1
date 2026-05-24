@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>🇮🇳 Institutional F&O Dashboard</title>
+
+<!-- TradingView -->
+<script src="https://s3.tradingview.com/tv.js"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Segoe UI,sans-serif;
+    background:#08111f;
+    color:white;
+    padding:20px;
+}
+
+.container{
+    max-width:1600px;
+    margin:auto;
+}
+
+header{
+    margin-bottom:25px;
+}
+
+h1{
+    font-size:34px;
+    color:#64b5f6;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    color:#9ca3af;
+}
+
+.stats-grid{
+
+    display:grid;
+    grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
+
+    gap:16px;
+    margin-bottom:20px;
+
+}
+
+.stat-card{
+
+    background:#111827;
+    padding:22px;
+    border-radius:18px;
+
+}
+
+.stat-value{
+
+    font-size:28px;
+    font-weight:700;
+
+}
+
+.card{
+
+    background:#111827;
+    border-radius:20px;
+    padding:24px;
+    margin-bottom:20px;
+
+}
+
+.card h2{
+
+    margin-bottom:20px;
+    color:#90caf9;
+
+}
+
+.grid-2{
+
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+
+}
+
+table{
+
+    width:100%;
+    border-collapse:collapse;
+
+}
+
+th,td{
+
+    padding:14px;
+    border-bottom:
+    1px solid rgba(255,255,255,0.08);
+
+    text-align:left;
+
+}
+
+.call{
+    color:#22c55e;
+    font-weight:700;
+}
+
+.put{
+    color:#ef4444;
+    font-weight:700;
+}
+
+.neutral{
+    color:#f59e0b;
+    font-weight:700;
+}
+
+#momentumMap{
+
+    position:relative;
+    height:500px;
+    background:#0b1220;
+    border-radius:18px;
+    overflow:hidden;
+
+}
+
+.axis-line{
+
+    position:absolute;
+    background:
+    rgba(255,255,255,0.15);
+
+}
+
+.stock-node{
+
+    position:absolute;
+
+    width:70px;
+    height:70px;
+
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:11px;
+    font-weight:700;
+
+    color:white;
+
+}
+
+#sectorHeatmap{
+
+    position:relative;
+    height:600px;
+    background:#0b1220;
+    border-radius:20px;
+    overflow:hidden;
+
+}
+
+.bubble{
+
+    position:absolute;
+
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    flex-direction:column;
+
+    font-weight:700;
+
+    color:white;
+
+    transition:0.3s;
+
+}
+
+.bubble:hover{
+
+    transform:scale(1.08);
+
+}
+
+.green{
+
+    color:#22c55e;
+
+}
+
+.red{
+
+    color:#ef4444;
+
+}
+
+.yellow{
+
+    color:#f59e0b;
+
+}
+
+@media(max-width:1000px){
+
+.grid-2{
+
+    grid-template-columns:1fr;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+
+<h1>🇮🇳 Institutional F&O Dashboard</h1>
+
+<div class="subtitle">
+Strike.money Inspired Institutional Dashboard
+</div>
+
+</header>
+
+<!-- Stats -->
+
+<div class="stats-grid">
+
+<div class="stat-card">
+
+<div class="stat-value green">
+24,832.45
+</div>
+
+<div>
+NIFTY 50
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<div class="stat-value green">
+53,214.10
+</div>
+
+<div>
+BANKNIFTY
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<div class="stat-value green">
+12
+</div>
+
+<div>
+Bullish Stocks
+</div>
+
+</div>
+
+<div class="stat-card">
+
+<div class="stat-value red">
+5
+</div>
+
+<div>
+Bearish Stocks
+</div>
+
+</div>
+
+</div>
+
+<!-- Main -->
+
+<div class="grid-2">
+
+<!-- Screener -->
+
+<div class="card">
+
+<h2>
+🔥 Institutional Options Screener
+</h2>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Stock</th>
+<th>Price</th>
+<th>Momentum</th>
+<th>RSI</th>
+<th>Trend</th>
+<th>Bias</th>
+<th>Score</th>
+
+</tr>
+
+</thead>
+
+<tbody id="stockTable"></tbody>
+
+</table>
+
+</div>
+
+<!-- Momentum -->
+
+<div class="card">
+
+<h2>
+📊 Relative Rotation / Momentum Map
+</h2>
+
+<div id="momentumMap"></div>
+
+</div>
+
+</div>
+
+<!-- Heatmap -->
+
+<div class="card">
+
+<h2>
+🔥 Sector Rotation Heatmap
+</h2>
+
+<div id="sectorHeatmap"></div>
+
+</div>
+
+<!-- TradingView -->
+
+<div class="card">
+
+<h2>
+📈 Institutional TradingView Chart
+</h2>
+
+<div id="tradingview_chart"
+style="height:650px;"></div>
+
+</div>
+
+</div>
+
+<script>
+
+//
+// STATIC INSTITUTIONAL DATA
+// (FAST LOADING VERSION)
+//
+
+const stocks = [
+
+{
+name:"RELIANCE",
+price:2940,
+momentum:4.2,
+rsi:67,
+trend:"Bullish",
+bias:"CALL",
+score:92
+},
+
+{
+name:"HDFCBANK",
+price:1688,
+momentum:3.5,
+rsi:61,
+trend:"Bullish",
+bias:"CALL",
+score:87
+},
+
+{
+name:"SBIN",
+price:912,
+momentum:5.1,
+rsi:72,
+trend:"Bullish",
+bias:"CALL",
+score:95
+},
+
+{
+name:"INFY",
+price:1488,
+momentum:-2.1,
+rsi:42,
+trend:"Bearish",
+bias:"PUT",
+score:70
+},
+
+{
+name:"TCS",
+price:3920,
+momentum:2.4,
+rsi:58,
+trend:"Bullish",
+bias:"CALL",
+score:84
+},
+
+{
+name:"AXISBANK",
+price:1211,
+momentum:-1.8,
+rsi:46,
+trend:"Neutral",
+bias:"NEUTRAL",
+score:65
+},
+
+{
+name:"ITC",
+price:441,
+momentum:1.9,
+rsi:57,
+trend:"Bullish",
+bias:"CALL",
+score:76
+},
+
+{
+name:"ADANIENT",
+price:3211,
+momentum:6.4,
+rsi:78,
+trend:"Bullish",
+bias:"CALL",
+score:98
+}
+
+];
+
+//
+// RENDER TABLE
+//
+
+function renderTable(){
+
+const tbody =
+document.getElementById("stockTable");
+
+let html = "";
+
+stocks.forEach(stock=>{
+
+html += `
+
+<tr>
+
+<td>
+<strong>${stock.name}</strong>
+</td>
+
+<td>
+₹${stock.price}
+</td>
+
+<td class="
+${stock.momentum > 0 ? 'green':'red'}
+">
+${stock.momentum}%
+</td>
+
+<td>
+${stock.rsi}
+</td>
+
+<td>
+${stock.trend}
+</td>
+
+<td class="
+${stock.bias === 'CALL'
+? 'call'
+: stock.bias === 'PUT'
+? 'put'
+: 'neutral'}
+">
+${stock.bias}
+</td>
+
+<td>
+${stock.score}
+</td>
+
+</tr>
+
+`;
+
+});
+
+tbody.innerHTML = html;
+
+}
+
+//
+// MOMENTUM MAP
+//
+
+function renderMomentumMap(){
+
+const container =
+document.getElementById("momentumMap");
+
+container.innerHTML = "";
+
+const vertical =
+document.createElement("div");
+
+vertical.className = "axis-line";
+
+vertical.style.cssText = `
+width:2px;
+height:100%;
+left:50%;
+top:0;
+`;
+
+container.appendChild(vertical);
+
+const horizontal =
+document.createElement("div");
+
+horizontal.className = "axis-line";
+
+horizontal.style.cssText = `
+height:2px;
+width:100%;
+left:0;
+top:50%;
+`;
+
+container.appendChild(horizontal);
+
+stocks.forEach((stock,index)=>{
+
+const node =
+document.createElement("div");
+
+node.className = "stock-node";
+
+const x =
+50 + stock.momentum * 5;
+
+const y =
+100 - stock.rsi;
+
+const color =
+stock.bias === "CALL"
+? "#22c55e"
+: stock.bias === "PUT"
+? "#ef4444"
+: "#f59e0b";
+
+node.style.cssText = `
+
+left:${x}%;
+top:${y}%;
+
+background:${color};
+
+`;
+
+node.innerHTML =
+stock.name.substring(0,6);
+
+container.appendChild(node);
+
+});
+
+}
+
+//
+// HEATMAP
+//
+
+const sectors = [
+
+{name:"BANKING", strength:92},
+{name:"IT", strength:68},
+{name:"AUTO", strength:77},
+{name:"FMCG", strength:44},
+{name:"REALTY", strength:31},
+{name:"METALS", strength:81},
+{name:"ENERGY", strength:87},
+{name:"PHARMA", strength:74}
+
+];
+
+function renderHeatmap(){
+
+const container =
+document.getElementById("sectorHeatmap");
+
+container.innerHTML = "";
+
+sectors.forEach((sector,index)=>{
+
+const bubble =
+document.createElement("div");
+
+bubble.className = "bubble";
+
+const size =
+sector.strength * 2;
+
+const green =
+Math.floor(sector.strength * 2);
+
+const red =
+255 - green;
+
+bubble.style.cssText = `
+
+width:${size}px;
+height:${size}px;
+
+background:
+rgba(${red},${green},120,0.85);
+
+left:${10 + (index % 4) * 22}%;
+
+top:${10 + Math.floor(index/4) * 40}%;
+
+`;
+
+bubble.innerHTML = `
+
+<div>${sector.name}</div>
+
+<div style="font-size:12px">
+${sector.strength}
+</div>
+
+`;
+
+container.appendChild(bubble);
+
+});
+
+}
+
+//
+// TRADINGVIEW
+//
+
+function loadTradingView(){
+
+new TradingView.widget({
+
+"autosize": true,
+
+"symbol": "NSE:RELIANCE",
+
+"interval": "15",
+
+"timezone": "Asia/Kolkata",
+
+"theme": "dark",
+
+"style": "1",
+
+"locale": "en",
+
+"toolbar_bg": "#111827",
+
+"enable_publishing": false,
+
+"allow_symbol_change": true,
+
+"container_id": "tradingview_chart",
+
+"studies": [
+
+"RSI@tv-basicstudies",
+"MACD@tv-basicstudies",
+"Volume@tv-basicstudies"
+
+]
+
+});
+
+}
+
+//
+// INITIALIZE
+//
+
+renderTable();
+
+renderMomentumMap();
+
+renderHeatmap();
+
+setTimeout(()=>{
+
+loadTradingView();
+
+},500);
+
+</script>
+
+</body>
+
+</html>
